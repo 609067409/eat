@@ -15,6 +15,44 @@
             font-family: "Microsoft YaHei", sans-serif;
         }
 
+        /* 兼容性降级方案 */
+        @supports not (width: clamp(300px, 80vw, 500px)) {
+            .wheel {
+                width: 80vw;
+                max-width: 500px;
+                min-width: 300px;
+                height: 80vw;
+                max-height: 500px;
+                min-height: 300px;
+            }
+            
+            .wheel-container {
+                max-width: 80vw;
+                max-width: 500px;
+                min-width: 300px;
+            }
+            
+            .game-container {
+                max-width: 90vw;
+                max-width: 600px;
+                min-width: 320px;
+            }
+            
+            .dish-text {
+                font-size: 2.5vw;
+                max-width: 15vw;
+            }
+            
+            h1 {
+                font-size: 6vw;
+            }
+            
+            .start-btn {
+                font-size: 4.5vw;
+                padding: 3vw 8vw;
+            }
+        }
+
         body {
             background-color: #f5f5f5;
             display: flex;
@@ -27,31 +65,32 @@
 
         .game-container {
             text-align: center;
-            max-width: 600px;
+            max-width: clamp(320px, 90vw, 600px);
             width: 100%;
+            padding: 0 clamp(10px, 3vw, 20px);
         }
 
         h1 {
             color: #333;
-            margin-bottom: 30px;
-            font-size: 28px;
+            margin-bottom: clamp(20px, 5vw, 30px);
+            font-size: clamp(20px, 6vw, 28px);
         }
 
         /* 大转盘样式 */
         .wheel-container {
             position: relative;
             width: 100%;
-            max-width: 500px;
-            margin: 0 auto 40px;
+            max-width: clamp(300px, 80vw, 500px);
+            margin: 0 auto clamp(20px, 5vw, 40px);
         }
 
         .wheel {
-            width: 500px;
-            height: 500px;
+            width: clamp(300px, 80vw, 500px);
+            height: clamp(300px, 80vw, 500px);
             border-radius: 50%;
             transition: transform 6s cubic-bezier(0.2, 0.8, 0.2, 1);
             /* 平滑旋转动画 */
-            border: 8px solid #fff;
+            border: clamp(4px, 1.5vw, 8px) solid #fff;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
             position: relative;
             background: conic-gradient(#ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3,
@@ -75,12 +114,12 @@
             left: 70%;
             top: 15%;
             transform: rotate(90deg);
-            font-size: 11px;
+            font-size: clamp(8px, 2.5vw, 11px);
             font-weight: bold;
             color: #fff;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
             white-space: nowrap;
-            max-width: 70px;
+            max-width: clamp(50px, 15vw, 70px);
             overflow: hidden;
             text-overflow: ellipsis;
             text-align: center;
@@ -88,14 +127,14 @@
 
         .wheel-pointer {
             position: absolute;
-            top: -30px;
+            top: clamp(-20px, -4vw, -30px);
             left: 50%;
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 20px solid transparent;
-            border-right: 20px solid transparent;
-            border-top: 40px solid #ff4444;
+            border-left: clamp(15px, 3vw, 20px) solid transparent;
+            border-right: clamp(15px, 3vw, 20px) solid transparent;
+            border-top: clamp(25px, 6vw, 40px) solid #ff4444;
             z-index: 10;
             pointer-events: none;
             filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
@@ -106,8 +145,8 @@
             background-color: #ff4444;
             color: #fff;
             border: none;
-            padding: 16px 40px;
-            font-size: 20px;
+            padding: clamp(12px, 3vw, 16px) clamp(30px, 8vw, 40px);
+            font-size: clamp(16px, 4.5vw, 20px);
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s;
@@ -150,9 +189,9 @@
 
         .modal-content {
             background-color: #fff;
-            padding: 40px;
+            padding: clamp(20px, 5vw, 40px);
             border-radius: 16px;
-            max-width: 400px;
+            max-width: clamp(280px, 85vw, 400px);
             width: 90%;
             text-align: center;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
@@ -165,17 +204,17 @@
         }
 
         .result-title {
-            font-size: 24px;
+            font-size: clamp(18px, 5vw, 24px);
             color: #333;
-            margin-bottom: 20px;
+            margin-bottom: clamp(15px, 4vw, 20px);
         }
 
         .result-dish {
-            font-size: 28px;
+            font-size: clamp(20px, 6vw, 28px);
             color: #ff4444;
             font-weight: bold;
-            margin: 20px 0;
-            padding: 15px;
+            margin: clamp(15px, 4vw, 20px) 0;
+            padding: clamp(10px, 3vw, 15px);
             background-color: #fff8f8;
             border-radius: 10px;
             border: 2px dashed #ff4444;
@@ -185,12 +224,12 @@
             background-color: #2ecc71;
             color: #fff;
             border: none;
-            padding: 12px 32px;
-            font-size: 18px;
+            padding: clamp(10px, 2.5vw, 12px) clamp(25px, 6vw, 32px);
+            font-size: clamp(14px, 4vw, 18px);
             border-radius: 50px;
             cursor: pointer;
             transition: all 0.3s;
-            margin-top: 10px;
+            margin-top: clamp(8px, 2vw, 10px);
         }
 
         .restart-btn:hover {
@@ -200,32 +239,32 @@
 
         /* 菜品列表样式（可选展示） */
         .dish-list {
-            margin-top: 40px;
+            margin-top: clamp(20px, 5vw, 40px);
             width: 100%;
             background-color: #fff;
             border-radius: 12px;
-            padding: 20px;
+            padding: clamp(15px, 4vw, 20px);
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
         }
 
         .dish-list h2 {
-            font-size: 20px;
+            font-size: clamp(16px, 4.5vw, 20px);
             color: #333;
-            margin-bottom: 15px;
+            margin-bottom: clamp(10px, 3vw, 15px);
             text-align: left;
         }
 
         .dish-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(clamp(120px, 30vw, 140px), 1fr));
+            gap: clamp(8px, 2vw, 10px);
         }
 
         .dish-item {
-            padding: 8px 12px;
+            padding: clamp(6px, 2vw, 8px) clamp(8px, 2.5vw, 12px);
             background-color: #fafafa;
             border-radius: 6px;
-            font-size: 14px;
+            font-size: clamp(12px, 3.5vw, 14px);
             color: #666;
             text-align: left;
             border: 1px solid #eee;
