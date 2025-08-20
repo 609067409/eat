@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机选菜大转盘</title>
+    <!-- 引入 Vue3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .game-container {
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        /* 大转盘样式 */
+        .wheel-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 40px;
+        }
+
+        .wheel {
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            transition: transform 6s cubic-bezier(0.2, 0.8, 0.2, 1);
+            /* 平滑旋转动画 */
+            border: 8px solid #fff;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            position: relative;
+            background: conic-gradient(#ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3,
+                    #54a0ff, #5f27cd, #00d2d3, #ff9f43, #10ac84, #ee5a24,
+                    #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3,
+                    #54a0ff, #5f27cd, #00d2d3, #ff9f43, #10ac84, #ee5a24);
+        }
+
+        .wheel-segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dish-text {
+            position: absolute;
+            left: 70%;
+            top: 15%;
+            transform: rotate(90deg);
+            font-size: 11px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            white-space: nowrap;
+            max-width: 70px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-align: center;
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 40px solid #ff4444;
+            z-index: 10;
+            pointer-events: none;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        /* 按钮样式 */
+        .start-btn {
+            background-color: #ff4444;
+            color: #fff;
+            border: none;
+            padding: 16px 40px;
+            font-size: 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
+        }
+
+        .start-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .start-btn:hover:not(:disabled) {
+            background-color: #cc0000;
+            transform: translateY(-2px);
+        }
+
+        /* 结果弹窗样式 */
+        .result-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .result-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 16px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            transform: translateY(-20px);
+            transition: transform 0.3s;
+        }
+
+        .result-modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .result-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .result-dish {
+            font-size: 28px;
+            color: #ff4444;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #fff8f8;
+            border-radius: 10px;
+            border: 2px dashed #ff4444;
+        }
+
+        .restart-btn {
+            background-color: #2ecc71;
+            color: #fff;
+            border: none;
+            padding: 12px 32px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .restart-btn:hover {
+            background-color: #27ae60;
+            transform: translateY(-2px);
+        }
+
+        /* 菜品列表样式（可选展示） */
+        .dish-list {
+            margin-top: 40px;
+            width: 100%;
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .dish-list h2 {
+            font-size: 20px;
+            color: #333;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .dish-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .dish-item {
+            padding: 8px 12px;
+            background-color: #fafafa;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #666;
+            text-align: left;
+            border: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container" id="app">
+        <h1>🍽️ 随机选菜大转盘</h1>
+
+        <!-- 大转盘区域 -->
+        <div class="wheel-container">
+            <div class="wheel" :style="{ transform: `rotate(${rotateDeg}deg)` }">
+                <div class="wheel-segment" v-for="(dish, index) in dishList" :key="index"
+                    :style="{ transform: `rotate(${index * (360 / dishList.length)}deg)` }">
+                    <span class="dish-text">{{ dish }}</span>
+                </div>
+            </div>
+            <div class="wheel-pointer"></div>
+        </div>
+
+        <!-- 开始按钮 -->
+        <button class="start-btn" @click="startSpin" :disabled="isSpinning">
+            {{ isSpinning ? '转盘旋转中...' : '开始抽奖' }}
+        </button>
+
+        <!-- 结果弹窗 -->
+        <div class="result-modal" :class="{ active: showResult }">
+            <div class="modal-content">
+                <h2 class="result-title">恭喜！你抽到的菜品是</h2>
+                <div class="result-dish">{{ selectedDish }}</div>
+                <p>今晚就吃它吧！😋</p>
+                <button class="restart-btn" @click="restartGame">再抽一次</button>
+            </div>
+        </div>
+
+        <!-- 菜品列表（可选） -->
+        <div class="dish-list">
+            <h2>📋 所有可选菜品（共24道）</h2>
+            <div class="dish-grid">
+                <div class="dish-item" v-for="(dish, index) in dishList" :key="index">
+                    {{ index + 1 }}. {{ dish }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    // 24道菜品列表
+                    dishList: [
+                        "番茄土豆牛腩", "蒜蓉花甲", "排骨炖土豆", "可乐鸡翅",
+                        "蒜蓉基围虾", "海贝丝瓜汤", "苦瓜炒蛋", "香菜炒牛肉",
+                        "西红柿炒蛋", "炒时蔬", "青椒肉丝", "木耳炒肉",
+                        "蒜香鸡翅", "素炒香菇", "茄子豆角", "上海青炒瘦肉",
+                        "丝瓜鸡蛋汤", "咸蛋黄罗氏虾", "豆豉蒸排骨", "鸡爪烧黄豆",
+                        "猪蹄闷鸡爪", "剁椒鱼头", "砂锅粥", "蒜蓉粉丝虾"
+                    ],
+                    rotateDeg: 0, // 转盘旋转角度
+                    isSpinning: false, // 是否正在旋转
+                    showResult: false, // 是否显示结果弹窗
+                    selectedDish: "" // 选中的菜品
+                };
+            },
+            methods: {
+                // 开始旋转转盘
+                startSpin() {
+                    if (this.isSpinning) return;
+
+                    this.isSpinning = true;
+                    this.showResult = false;
+
+                    // 随机计算旋转角度：3-5圈（1080-1800度） + 随机偏移
+                    const baseDeg = 360 * (3 + Math.random() * 2); // 基础旋转圈数
+                    const randomOffset = Math.random() * 360; // 随机偏移角度
+                    this.rotateDeg = baseDeg + randomOffset;
+
+                    // 旋转结束后显示结果（延迟6秒，与动画时间一致）
+                    setTimeout(() => {
+                        // 根据最终角度计算对应的菜品索引
+                        const finalAngle = this.rotateDeg % 360; // 获取最终角度（0-360度）
+                        const segmentAngle = 360 / this.dishList.length; // 每个扇形的角度（15度）
+                        // 由于指针在顶部，需要反向计算菜品索引
+                        const dishIndex = (this.dishList.length - Math.floor(finalAngle / segmentAngle)) % this.dishList.length;
+                        
+                        this.selectedDish = this.dishList[dishIndex];
+                        this.showResult = true;
+                        this.isSpinning = false;
+                    }, 6000);
+                },
+                // 重新开始游戏
+                restartGame() {
+                    window.location.reload();
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+
+</html>
